@@ -4,13 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Bundle;
 
 
 public final class MemoryButton extends android.support.v7.widget.AppCompatButton {
 
-    private BitmapDrawable front;
-    private BitmapDrawable back;
+    private BitmapDrawable photo;
+    private BitmapDrawable questionmark;
 
     private boolean isReverted = false;
     private boolean isMatched = false;
@@ -18,28 +17,11 @@ public final class MemoryButton extends android.support.v7.widget.AppCompatButto
     MemoryButton(Context context) {
         super(context);
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.questionmark);
-        back = new BitmapDrawable(getResources(), bitmap);
-        setBackground(back);
+        questionmark = new BitmapDrawable(getResources(), bitmap);
+        setBackground(questionmark);
     }
 
-    public boolean isMatched() {
-        return isMatched;
-    }
-
-    public void setFront(BitmapDrawable front) {
-        this.front = front;
-    }
-
-    public void match(){
-        isMatched = true;
-    }
-
-    public void revertToBack(){
-        isReverted=false;
-        setBackground(back);
-    }
-
-    public boolean revertToFront(){
+    public boolean tryRevertToFront(){
 
         if(isMatched) {
             return false;
@@ -50,12 +32,27 @@ public final class MemoryButton extends android.support.v7.widget.AppCompatButto
         }
 
         isReverted=true;
-        setBackground(front);
+        setBackground(photo);
         return true;
-
     }
 
-    public BitmapDrawable getFront() {
-        return front;
+    public void revertToBack(){
+        isReverted=false;
+        setBackground(questionmark);
+    }
+
+    public BitmapDrawable getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(BitmapDrawable photo) {
+        this.photo = photo;
+    }
+
+    public void match(){
+        isMatched = true;
+    }
+    public boolean isMatched() {
+        return isMatched;
     }
 }

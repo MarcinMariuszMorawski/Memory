@@ -25,6 +25,7 @@ public final class GameActivity extends AppCompatActivity {
     private int photosCount;
     private int photosInitCounter=0;
     private int buttonsCount;
+    boolean isBussy=false;
     private MemoryButton latelyClickedButton = null;
 
     @Override
@@ -52,7 +53,7 @@ public final class GameActivity extends AppCompatActivity {
             photosLeftToTake = photosCount/2;
 
             addButtonsToScreen(columns,rows,height,width);
-            dispatchTakePictureIntent();
+            takePictureIntent();
         }
     }
     private void addButtonsToScreen(int numberOfButtonsPerRow,  int numberOfRows, int height, int width){
@@ -75,7 +76,7 @@ public final class GameActivity extends AppCompatActivity {
             buttonsLayout.addView(newLine);
         }
     }
-    private void dispatchTakePictureIntent() {
+    private void takePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, 1);
@@ -85,88 +86,93 @@ public final class GameActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            photosLeftToTake--;
-
-            photosArray[photosInitCounter]=new BitmapDrawable(getResources(), imageBitmap);
-            photosArray[photosInitCounter+1]=photosArray[photosInitCounter];
-            photosInitCounter=photosInitCounter+2;
-
-            if(photosLeftToTake>0) {
-                dispatchTakePictureIntent();
-            }else{
-                afterCompletedPhotos();
-            }
+            Bitmap photo = (Bitmap) extras.get("data");
+            insertPhotoToArray(photo);
         }
         else{
-            dispatchTakePictureIntent();
+            takePictureIntent();
         }
     }
-    private void afterCompletedPhotos() {
-        ShufflePicturesForButtons();
+    private void insertPhotoToArray(Bitmap photo){
+        photosLeftToTake--;
 
+        photosArray[photosInitCounter]=new BitmapDrawable(getResources(), photo);
+        photosArray[photosInitCounter+1]=photosArray[photosInitCounter];
+        photosInitCounter=photosInitCounter+2;
+
+        if(photosLeftToTake>0) {
+            takePictureIntent();
+        }else{
+            shufflePicturesForButtons();
+        }
     }
-    private void ShufflePicturesForButtons() {
+    private void shufflePicturesForButtons() {
         Collections.shuffle(Arrays.asList(photosArray));
 
         for(int i=0;i<photosCount;i++){
-            buttonsArray[i].setFront(photosArray[i]);
+            buttonsArray[i].setPhoto(photosArray[i]);
         }
     }
-    private View.OnClickListener onMemoryButtonListener = new View.OnClickListener() {
 
-        @Override
-        public void onClick(final View v) {
-           final  MemoryButton clickedButton = (MemoryButton) v;
+    private View.OnClickListener onMemoryButtonListener = new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+            MemoryButton thisClickedButton = (MemoryButton) v;
+
+            if(isBussy){
+                return;
+            }
 
             if(latelyClickedButton==null){
-                if(clickedButton.revertToFront()) {
-                    latelyClickedButton=clickedButton;
+                if(thisClickedButton.tryRevertToFront()) {
+                    latelyClickedButton=thisClickedButton;
                 }
-            }else{
-                if(clickedButton.revertToFront()) {
+                return;
+            }
 
-                    if(latelyClickedButton.getFront().equals(clickedButton.getFront())){
-                        latelyClickedButton.match();
-                        clickedButton.match();
+            if(thisClickedButton.tryRevertToFront()) {
+                if (latelyClickedButton.getPhoto().equals(thisClickedButton.getPhoto())) {
+                    pairFound(thisClickedButton);
+                } else{
+                    pairNotFund(thisClickedButton);
+                }
+            }
+            }
+
+            private void pairNotFund(final MemoryButton thisClickedButton) {
+                isBussy=true;
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        latelyClickedButton.revertToBack();
+                        thisClickedButton.revertToBack();
                         latelyClickedButton=null;
-                        checkIfGameEnds();
+                        isBussy = false;
                     }
-                    else{
-                        final Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                latelyClickedButton.revertToBack();
-                                clickedButton.revertToBack();
-                                latelyClickedButton=null;
-                                //isBusy = false;
-                            }
-                        }, 1000);
-
-
-                    }
-
-
-                }
+                }, 1000);
             }
-        }
 
-        private void checkIfGameEnds() {
+            private void pairFound(MemoryButton thisClickedButton) {
+                latelyClickedButton.match();
+                thisClickedButton.match();
+                latelyClickedButton = null;
+                checkIfGameEnds();
+            }
 
-            int countOfMatched = 0;
-            for(MemoryButton button : buttonsArray){
-                if(button.isMatched())
-                {
-                    countOfMatched++;
+            private void checkIfGameEnds() {
+                int countOfMatched = 0;
+                for(MemoryButton button : buttonsArray){
+                    if(button.isMatched())
+                    {
+                        countOfMatched++;
+                    }
+                }
+                if(countOfMatched==buttonsCount) {
+                    Toast.makeText(getBaseContext(), "You won the game!",
+                            Toast.LENGTH_LONG).show();
                 }
             }
 
-            if(countOfMatched==buttonsCount) {
-                Toast.makeText(getBaseContext(), "You won the game!",
-                        Toast.LENGTH_LONG).show();
-            }
-
-        }
-    };
+        };
 }
