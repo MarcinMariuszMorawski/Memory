@@ -28,6 +28,20 @@ public class MenuActivity extends AppCompatActivity {
 
                 final Button buttonStart4x3 = findViewById(R.id.buttonStartGame4x3);
                 final Button buttonStart4x4 = findViewById(R.id.buttonStartGame4x4);
+                final Button buttonStart2x2 = findViewById(R.id.buttonStartGame2x2);
+
+                buttonStart2x2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MenuActivity.this,GameActivity.class);
+                        intent.putExtra(EXTRA_MESSAGE_COLUMNS,2);
+                        intent.putExtra(EXTRA_MESSAGE_ROWS,2);
+                        intent.putExtra(EXTRA_MESSAGE_HEIGHT,HEIGHT);
+                        intent.putExtra(EXTRA_MESSAGE_WIDTH,WIDTH);
+
+                        startActivity(intent);
+                    }
+                });
 
                 buttonStart4x3.setOnClickListener(new View.OnClickListener() {
                     @Override
