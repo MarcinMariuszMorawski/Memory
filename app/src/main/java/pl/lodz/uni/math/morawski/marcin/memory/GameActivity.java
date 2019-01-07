@@ -71,8 +71,7 @@ public final class GameActivity extends AppCompatActivity {
             return  false;
         }
 
-        if(!(numberOfRows * numberOfColumns %2==0))
-        {
+        if(numberOfRows * numberOfColumns %2!=0) {
             return false;
         }
 
@@ -206,9 +205,12 @@ public final class GameActivity extends AppCompatActivity {
                     }
                 }
                 if(countOfMatched==buttonsCount) {
-                    Toast.makeText(getBaseContext(), "You won the game!",
-                            Toast.LENGTH_LONG).show();
+                    endGame();
                 }
+            }
+            private void endGame(){
+                Toast.makeText(getBaseContext(), "You won!",
+                        Toast.LENGTH_LONG).show();
             }
 
         };

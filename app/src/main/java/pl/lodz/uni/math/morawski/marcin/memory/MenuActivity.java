@@ -32,21 +32,21 @@ public final class MenuActivity extends AppCompatActivity {
                 buttonStart2x2.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        sendIntetnt(2,2,HEIGHT,WIDTH);
+                        sendIntent(2,2,HEIGHT,WIDTH);
                     }
                 });
 
                 buttonStart4x3.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        sendIntetnt(4,3,HEIGHT,WIDTH);
+                        sendIntent(4,3,HEIGHT,WIDTH);
                     }
                 });
 
                 buttonStart4x4.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        sendIntetnt(4,4,HEIGHT,WIDTH);
+                        sendIntent(4,4,HEIGHT,WIDTH);
                     }
                 });
 
@@ -55,7 +55,7 @@ public final class MenuActivity extends AppCompatActivity {
         });
     }
 
-    private void sendIntetnt(int columns, int rows, int height, int width){
+    private void sendIntent(int columns, int rows, int height, int width){
         Intent intent = new Intent(MenuActivity.this,GameActivity.class);
         intent.putExtra(EXTRA_MESSAGE_COLUMNS,columns);
         intent.putExtra(EXTRA_MESSAGE_ROWS,rows);
