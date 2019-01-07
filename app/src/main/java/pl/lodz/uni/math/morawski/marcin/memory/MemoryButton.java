@@ -11,7 +11,7 @@ public final class MemoryButton extends android.support.v7.widget.AppCompatButto
     private BitmapDrawable photo;
     private BitmapDrawable questionmark;
 
-    private boolean isReverted = false;
+    private boolean isRevertedOnPhoto = false;
     private boolean isMatched = false;
 
     MemoryButton(Context context) {
@@ -27,17 +27,17 @@ public final class MemoryButton extends android.support.v7.widget.AppCompatButto
             return false;
         }
 
-        if(isReverted){
+        if(isRevertedOnPhoto){
             return false;
         }
 
-        isReverted=true;
+        isRevertedOnPhoto =true;
         setBackground(photo);
         return true;
     }
 
     public void revertToBack(){
-        isReverted=false;
+        isRevertedOnPhoto =false;
         setBackground(questionmark);
     }
 
