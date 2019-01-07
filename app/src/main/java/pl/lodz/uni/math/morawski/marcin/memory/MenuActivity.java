@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class MenuActivity extends AppCompatActivity {
+public final class MenuActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE_COLUMNS = "pl.lodz.uni.math.morawski.marcin.MenuActivity.EXTRA_MESSAGE_COLUMNS";
     public static final String EXTRA_MESSAGE_ROWS = "pl.lodz.uni.math.morawski.marcin.MenuActivity.EXTRA_MESSAGE_ROWS";
     public static final String EXTRA_MESSAGE_HEIGHT = "pl.lodz.uni.math.morawski.marcin.MenuActivity.EXTRA_MESSAGE_HEIGHT";
