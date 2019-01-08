@@ -9,7 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 public final class MemoryButton extends android.support.v7.widget.AppCompatButton {
 
     private BitmapDrawable photo;
-    private BitmapDrawable questionmark;
+    private final BitmapDrawable questionmark;
 
     private boolean isRevertedOnPhoto = false;
     private boolean isMatched = false;
@@ -21,23 +21,23 @@ public final class MemoryButton extends android.support.v7.widget.AppCompatButto
         setBackground(questionmark);
     }
 
-    public boolean tryRevertToFront(){
+    public boolean tryRevertToFront() {
 
-        if(isMatched) {
+        if (isMatched) {
             return false;
         }
 
-        if(isRevertedOnPhoto){
+        if (isRevertedOnPhoto) {
             return false;
         }
 
-        isRevertedOnPhoto =true;
+        isRevertedOnPhoto = true;
         setBackground(photo);
         return true;
     }
 
-    public void revertToBack(){
-        isRevertedOnPhoto =false;
+    public void revertToBack() {
+        isRevertedOnPhoto = false;
         setBackground(questionmark);
     }
 
@@ -49,9 +49,10 @@ public final class MemoryButton extends android.support.v7.widget.AppCompatButto
         this.photo = photo;
     }
 
-    public void match(){
+    public void match() {
         isMatched = true;
     }
+
     public boolean isMatched() {
         return isMatched;
     }

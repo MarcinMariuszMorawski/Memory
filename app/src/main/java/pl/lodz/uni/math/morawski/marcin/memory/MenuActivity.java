@@ -17,7 +17,6 @@ public final class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-
         final ConstraintLayout constraintLayout =  findViewById(R.id.constraintLayout);
         constraintLayout.post(new Runnable() {
             @Override
@@ -49,18 +48,17 @@ public final class MenuActivity extends AppCompatActivity {
                         sendIntent(4,4,HEIGHT,WIDTH);
                     }
                 });
-
-
             }
         });
     }
 
     private void sendIntent(int columns, int rows, int height, int width){
         Intent intent = new Intent(MenuActivity.this,GameActivity.class);
+
         intent.putExtra(EXTRA_MESSAGE_COLUMNS,columns);
         intent.putExtra(EXTRA_MESSAGE_ROWS,rows);
         intent.putExtra(EXTRA_MESSAGE_HEIGHT,height);
-        intent.putExtra(EXTRA_MESSAGE_WIDTH,width);
+        intent.putExtra(EXTRA_MESSAGE_WIDTH, width);
 
         startActivity(intent);
     }
