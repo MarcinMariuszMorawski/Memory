@@ -31,8 +31,8 @@ public final class GameActivity extends AppCompatActivity {
     private int photosCount;
     private int photosInitCounter=0;
     private int buttonsCount;
-    boolean disabledButtons = false;
 
+    private boolean disabledButtons = false;
     private MemoryButton latelyClickedButton = null;
 
     @Override
@@ -41,9 +41,9 @@ public final class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        loadIntenet();
+        loadIntent();
 
-        if(areIntentParametrsCorrect()) {
+        if(areIntentParametersCorrect()) {
             initComponents();
             addButtonsToScreen();
             takePictureIntent();
@@ -53,7 +53,7 @@ public final class GameActivity extends AppCompatActivity {
         }
     }
 
-    private  void loadIntenet()
+    private void loadIntent()
     {
         Intent intent = getIntent();
         numberOfColumns = intent.getIntExtra(MenuActivity.EXTRA_MESSAGE_COLUMNS,0);
@@ -62,7 +62,7 @@ public final class GameActivity extends AppCompatActivity {
         width = intent.getIntExtra(MenuActivity.EXTRA_MESSAGE_WIDTH,0);
     }
 
-    private boolean areIntentParametrsCorrect() {
+    private boolean areIntentParametersCorrect() {
         if(numberOfColumns <2){
             return  false;
         }
@@ -76,7 +76,6 @@ public final class GameActivity extends AppCompatActivity {
         }
 
         return true;
-
     }
     private void initComponents()
     {
@@ -92,22 +91,25 @@ public final class GameActivity extends AppCompatActivity {
     private void addButtonsToScreen(){
         int buttonSize = Math.min(height,width) / Math.max(numberOfColumns, numberOfRows);
         final LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
-        int counter=0;
 
         for(int i = 0; i< numberOfRows; i++) {
             LinearLayout newLine = new LinearLayout(this);
             newLine.setOrientation(LinearLayout.HORIZONTAL);
             for (int j = 0; j < numberOfColumns; j++) {
-                MemoryButton button = new MemoryButton(this);
-                button.setWidth(buttonSize);
-                button.setHeight(buttonSize);
-                button.setOnClickListener(onMemoryButtonListener);
+                MemoryButton button = createButton(buttonSize,buttonSize);
                 newLine.addView(button);
-                buttonsArray[counter] = button;
-                counter++;
+                buttonsArray[i*numberOfRows+j] = button;
             }
             buttonsLayout.addView(newLine);
         }
+    }
+
+    private MemoryButton createButton(int width, int height){
+        MemoryButton button = new MemoryButton(this);
+        button.setWidth(width);
+        button.setHeight(height);
+        button.setOnClickListener(onMemoryButtonListener);
+        return button;
     }
     private void takePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
