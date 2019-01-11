@@ -77,6 +77,7 @@ public final class GameActivity extends AppCompatActivity {
         buttonsCount = numberOfColumns * numberOfRows;
         buttonsArray = new MemoryButton[buttonsCount];
 
+
         photosCount = numberOfColumns * numberOfRows;
         photosArray = new BitmapDrawable[photosCount];
 
