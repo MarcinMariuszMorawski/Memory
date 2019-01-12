@@ -25,16 +25,16 @@ public final class GameActivity extends AppCompatActivity {
 
     private int numberOfColumns;
     private int numberOfRows;
-    private int height;
-    private int width;
+    private int screenHeight;
+    private int screenWidth;
 
     private int photosLeftToTake;
     private int photosCount;
     private int photosInitCounter = 0;
     private int buttonsCount;
 
-    private boolean disabledButtons = false;
-    private MemoryButton latelyClickedButton = null;
+    private boolean disabledButtonsToClick = false;
+    private MemoryButton recentlyClickedButton = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +57,8 @@ public final class GameActivity extends AppCompatActivity {
         Intent intent = getIntent();
         numberOfColumns = intent.getIntExtra(MenuActivity.EXTRA_MESSAGE_COLUMNS, 0);
         numberOfRows = intent.getIntExtra(MenuActivity.EXTRA_MESSAGE_ROWS, 0);
-        height = intent.getIntExtra(MenuActivity.EXTRA_MESSAGE_HEIGHT, 0);
-        width = intent.getIntExtra(MenuActivity.EXTRA_MESSAGE_WIDTH, 0);
+        screenHeight = intent.getIntExtra(MenuActivity.EXTRA_MESSAGE_HEIGHT, 0);
+        screenWidth = intent.getIntExtra(MenuActivity.EXTRA_MESSAGE_WIDTH, 0);
     }
 
     private boolean areIntentParametersCorrect() {
@@ -85,7 +85,7 @@ public final class GameActivity extends AppCompatActivity {
     }
 
     private void addButtonsToScreen() {
-        int buttonSize = Math.min(height, width) / Math.max(numberOfColumns, numberOfRows);
+        int buttonSize = Math.min(screenHeight, screenWidth) / Math.max(numberOfColumns, numberOfRows);
         final LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
 
         for (int i = 0; i < numberOfRows; i++) {
@@ -93,8 +93,11 @@ public final class GameActivity extends AppCompatActivity {
             newLine.setOrientation(LinearLayout.HORIZONTAL);
             for (int j = 0; j < numberOfColumns; j++) {
                 MemoryButton button = createButton(buttonSize, buttonSize);
+
+                int index = i * numberOfColumns + j;
+                buttonsArray[index] = button;
+
                 newLine.addView(button);
-                buttonsArray[i * numberOfRows + j] = button;
             }
             buttonsLayout.addView(newLine);
         }
@@ -136,13 +139,20 @@ public final class GameActivity extends AppCompatActivity {
         if (photosLeftToTake > 0) {
             takePictureIntent();
         } else {
-            shufflePicturesForButtons();
+            afterPhotosCreated();
         }
     }
 
-    private void shufflePicturesForButtons() {
-        Collections.shuffle(Arrays.asList(photosArray));
+    private void afterPhotosCreated() {
+        shufflePicturesArray();
+        setPicturesToButtons();
+    }
 
+    private void shufflePicturesArray() {
+        Collections.shuffle(Arrays.asList(photosArray));
+    }
+
+    private void setPicturesToButtons() {
         for (int i = 0; i < photosCount; i++) {
             buttonsArray[i].setPhoto(photosArray[i]);
         }
@@ -151,65 +161,69 @@ public final class GameActivity extends AppCompatActivity {
     private final View.OnClickListener onMemoryButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            MemoryButton thisClickedButton = (MemoryButton) v;
-
-            if (disabledButtons) {
-                return;
-            }
-
-            if (latelyClickedButton == null) {
-                if (thisClickedButton.tryRevertToFront()) {
-                    latelyClickedButton = thisClickedButton;
-                }
-                return;
-            }
-
-            if (thisClickedButton.tryRevertToFront()) {
-                if (latelyClickedButton.getPhoto().equals(thisClickedButton.getPhoto())) {
-                    pairFound(thisClickedButton);
-                } else {
-                    pairNotFound(thisClickedButton);
-                }
-            }
+            MemoryButton nowClickedButton = (MemoryButton) v;
+            memoryButtonClicked(nowClickedButton);
         }
-
-        private void pairNotFound(final MemoryButton thisClickedButton) {
-            disabledButtons = true;
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    latelyClickedButton.revertToBack();
-                    thisClickedButton.revertToBack();
-                    latelyClickedButton = null;
-                    disabledButtons = false;
-                }
-            }, 1000);
-        }
-
-        private void pairFound(MemoryButton thisClickedButton) {
-            latelyClickedButton.match();
-            thisClickedButton.match();
-            latelyClickedButton = null;
-            checkIfGameEnds();
-        }
-
-        private void checkIfGameEnds() {
-            int countOfMatched = 0;
-            for (MemoryButton button : buttonsArray) {
-                if (button.isMatched()) {
-                    countOfMatched++;
-                }
-            }
-            if (countOfMatched == buttonsCount) {
-                endGame();
-            }
-        }
-
-        private void endGame() {
-            Toast.makeText(getBaseContext(), "You won!",
-                    Toast.LENGTH_LONG).show();
-        }
-
     };
+
+
+    private void memoryButtonClicked(MemoryButton nowClickedButton) {
+
+        if (disabledButtonsToClick) { // prevent clicking all buttons in same time
+            return;
+        }
+
+        if (recentlyClickedButton == null) { // when any card is not reverted
+            if (nowClickedButton.tryRevertToFront()) {
+                recentlyClickedButton = nowClickedButton;
+            }
+            return;
+        }
+
+        if (nowClickedButton.tryRevertToFront()) { // when one card is reverted and we try to revert another one
+            if (recentlyClickedButton.getPhoto().equals(nowClickedButton.getPhoto())) {
+                pairFound(nowClickedButton);
+            } else {
+                pairNotFound(nowClickedButton);
+            }
+        }
+    }
+
+    private void pairNotFound(final MemoryButton thisClickedButton) {
+        disabledButtonsToClick = true;
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                recentlyClickedButton.revertToBack();
+                thisClickedButton.revertToBack();
+                recentlyClickedButton = null;
+                disabledButtonsToClick = false;
+            }
+        }, 1000);
+    }
+
+    private void pairFound(final MemoryButton thisClickedButton) {
+        recentlyClickedButton.match();
+        thisClickedButton.match();
+        recentlyClickedButton = null;
+        checkIfGameEnds();
+    }
+
+    private void checkIfGameEnds() {
+        int countOfMatched = 0;
+        for (MemoryButton button : buttonsArray) {
+            if (button.isMatched()) {
+                countOfMatched++;
+            }
+        }
+        if (countOfMatched == buttonsCount) {
+            endGame();
+        }
+    }
+
+    private void endGame() {
+        Toast.makeText(getBaseContext(), "You won!",
+                Toast.LENGTH_LONG).show();
+    }
 }
